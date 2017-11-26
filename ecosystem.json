@@ -14,7 +14,7 @@
     "deploy":{//部署任务
         "production":{
             "user":"dali", //这个user表示服务器上来发布应用的角色
-            "host":["59.110.225.115"],//主机.多个服务器传入多个ip.只有一台服务器就传入一个ip就行了
+            "host":["59.110.221.182"],//主机.多个服务器传入多个ip.只有一台服务器就传入一个ip就行了
             //"port":"22",
             "ref":"origin/master", //仓库分支
             "repo": "https://github.com/zhalice2011/pharmacisthome.git",  //仓库地址
