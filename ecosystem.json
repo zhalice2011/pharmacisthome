@@ -18,7 +18,7 @@
             "port":"62824",
             "ref":"origin/master", //仓库分支
             "repo": "https://github.com/zhalice2011/pharmacisthome.git",  //仓库地址
-            "path": "/var/www/pharmacisthome/production", //表示部署到服务器的哪一个路径下面
+            "path": "/www/pharmacisthome/production", //表示部署到服务器的哪一个路径下面
             "ssh_options":"StrictHostKeyChecking=no", //取消key校验
             "env":{
                 "NODE_ENV":"production"
