@@ -1,28 +1,58 @@
 {
-    "apps":[{
-        "name":"pharmacisthome",  //项目的名字
-        "script":"service.js",  //启动的脚本
-        "env":{  //环境
-            "COMMON_VARIABLE":"true"
-        },
-        "env_production":{
-            "NODE_ENV":"production"
-        }
-    }],
-    "deploy":{
-        "production:":{  //生产环境
-            "user":"dali", //发布的用户
-            "host":["59.110.221.182"], //ip地址
-            "ref":"origin/master", //需要拿主分支的代码
-            "repo":"https://github.com/zhalice2011/pharmacisthome.git",//仓库的地址
-            "path":"/var/www/pharmacisthome/production",  //要发布到服务器的哪一个文件夹下面
-            "ssh_options":"StrictHostKeyChecking=no",  //不要key的验证
-            //"post-deploy":"npm  install" //每次要安装一下最新的模块
-            "pre-deploy-local":"echo 'MR ZHOU Deploy Done'",//本地每次发布之前  压缩编译  什么的
+    "apps":[
+        {
+            "name":"pharmacisthome",
+            "script":"service.js",
             "env":{
-                "NODE_ENV":"production"//指定一下环境
+                "COMMON_VARIABLE":"true"
+            },
+            "env_production":{//生产环境的变量
+                "NODE_ENV":"production"
             }
         }
-
+    ],
+    "deploy":{//部署任务
+        "production":{
+            "user":"dali", //这个user表示服务器上来发布应用的角色
+            "host":["59.110.225.115"],//主机.多个服务器传入多个ip.只有一台服务器就传入一个ip就行了
+            //"port":"22",
+            "ref":"origin/master", //仓库分支
+            "repo": "https://github.com/zhalice2011/pharmacisthome.git",  //仓库地址
+            "path": "/var/www/pharmacisthome/production", //表示部署到服务器的哪一个路径下面
+            "ssh_options":"StrictHostKeyChecking=no", //取消key校验
+            "post-deploy":"npm install --registry=https://registry.npm.taobao.org && pm2 startOrRestart ecosystem.json  --env  production", //让服务器npm install
+            "env":{
+                "NODE_ENV":"production"
+            }
+        }
     }
 }
+
+// {
+//     "apps":[{
+//         "name":"pharmacisthome",  //项目的名字
+//         "script":"service.js",  //启动的脚本
+//         "env":{  //环境
+//             "COMMON_VARIABLE":"true"
+//         },
+//         "env_production":{
+//             "NODE_ENV":"production"
+//         }
+//     }],
+//     "deploy":{
+//         "production:":{  //生产环境
+//             "user":"dali", //发布的用户
+//             "host":["59.110.221.182"], //ip地址
+//             "ref":"origin/master", //需要拿主分支的代码
+//             "repo":"https://github.com/zhalice2011/pharmacisthome.git",//仓库的地址
+//             "path":"/var/www/pharmacisthome/production",  //要发布到服务器的哪一个文件夹下面
+//             "ssh_options":"StrictHostKeyChecking=no",  //不要key的验证
+//             //"post-deploy":"npm  install" //每次要安装一下最新的模块
+//             "pre-deploy-local":"echo 'MR ZHOU Deploy Done'",//本地每次发布之前  压缩编译  什么的
+//             "env":{
+//                 "NODE_ENV":"production"//指定一下环境
+//             }
+//         }
+
+//     }
+// }
