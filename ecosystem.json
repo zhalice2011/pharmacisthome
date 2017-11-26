@@ -15,7 +15,7 @@
         "production":{
             "user":"dali", //这个user表示服务器上来发布应用的角色
             "host":["59.110.221.182"],//主机.多个服务器传入多个ip.只有一台服务器就传入一个ip就行了
-            //"port":"22",
+            "port":"62824",
             "ref":"origin/master", //仓库分支
             "repo": "https://github.com/zhalice2011/pharmacisthome.git",  //仓库地址
             "path": "/var/www/pharmacisthome/production", //表示部署到服务器的哪一个路径下面
