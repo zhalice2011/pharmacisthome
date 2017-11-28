@@ -23,11 +23,12 @@ const TokenSchema = new mongoose.Schema({
 
 //绑定一个中间件,就是在每一条数据保存之前都经过这个中间件来进行处理
 TokenSchema.pre('save',function(next){
-    
+    console.log("我到这里了哦this",this)
+
     if (this.isNew){ //如果这条数据是新增的数据 更新一下这个时间
-        this.mata.createdAt = this.mata.updatedAt = Date.now()
+        this.meta.createdAt = this.meta.updatedAt = Date.now()
     } else {
-        this.mata.updatedAt = Date.now()
+        this.meta.updatedAt = Date.now()
     }
 
     next() //调用next往下走
@@ -41,10 +42,17 @@ TokenSchema.statics = {
         }).exec()
         //.exec()是执行  返回token
 
+        //判断
+        if (token && token.token){
+            token.access_token = token.token
+        }
+
         return token
 
     },
+    //保存token的方法
     async saveAccessToken(data) {
+        console.log("存储票据--->saveAccessToken",data)
         let token = await this.findOne({
             name:'access_token'
         }).exec()
@@ -59,9 +67,11 @@ TokenSchema.statics = {
                 expires_in : data.expires_in
             })
         }
+        console.log("存储票据--->saveAccessToken2",data)
+        
         //无论是更新还是新增  都让这个token保存一下
         await token.save()
-
+        console.log("accessToken存储完毕")
         return data
     }
 }

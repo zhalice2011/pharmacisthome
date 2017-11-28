@@ -27,7 +27,6 @@ class Server{  //定义一个Server类
     ))
   }
   async start() {  //在这个里面启动服务器
-      console.log("我在这啊")
       const nuxt = new Nuxt(config)
       // Build in development
       if (config.dev) {  //如果是开发环境的话就实时编译这个程序
@@ -52,7 +51,6 @@ class Server{  //定义一个Server类
       console.log('Server listening on ' + host + ':' + port) // eslint-disable-line no-console
   }
 }
-console.log('周达理 我在哪') // eslint-disable-line no-console
 
 const app = new Server()
 app.start()
