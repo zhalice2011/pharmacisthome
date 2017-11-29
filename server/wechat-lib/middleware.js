@@ -39,10 +39,10 @@ export default function (opts, reply) {
             //解析数据包
             const content = await util.parseXML(data)
             console.log("解析出来的xml文件",content)
-            //const message = util.formatMessage(content.xml)
+            const message = util.formatMessage(content.xml) //解析content.xml文件
             //将解析出来的数据挂载到ctx上面,这样后面的代码单元就能获取到这个数据了
-            //ctx.weixin = message
-            ctx.weixin = {}
+            ctx.weixin = message
+            //ctx.weixin = {}
             
             //解析之后把控制权交出去 给reply函数来回复
             await reply.apply(ctx,[ctx,next])  //让reply内部进行执行 执行的时候可以调用到现在的上下文
@@ -53,28 +53,9 @@ export default function (opts, reply) {
             console.log("replyBody:",replyBody)
             console.log("content.xml:",content.xml)
             console.log("content.xml:",content.xml)
-            // 解析出来的xml文件 { xml:
-            //     { ToUserName: [ 'gh_a4518b6b1d4a' ],
-            //       FromUserName: [ 'o6CCOv07vBrYB5v1MvtlROyAXWAc' ],
-            //       CreateTime: [ '1511914428' ],
-            //       MsgType: [ 'text' ],
-            //       Content: [ '你离' ],
-            //       MsgId: [ '6493623023063788278' ] } }
-            const xml = 
-            `<xml>
-            
-            <ToUserName><![CDATA[${content.xml.FromUserName[0]}]]></ToUserName>
-            
-            <FromUserName><![CDATA[${content.xml.ToUserName[0]}]]></FromUserName>
-            
-            <CreateTime>12345678</CreateTime>
-            
-            <MsgType><![CDATA[text]]></MsgType>
-            
-            <Content><![CDATA[${replyBody}]]></Content>
-            
-            </xml>`
-            //const xml = util.tpl(replyBody,msg) //转化成xml数据
+           
+            const xml = util.tpl(replyBody,msg) //转化成xml数据 出传入的数据就是
+
             ctx.status = 200
             ctx.type = 'application/xml'
             ctx.body = xml
