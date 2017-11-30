@@ -1,7 +1,9 @@
 import  request  from "request-promise";
 import formstream from 'formstream'
 import fs from 'fs'
+import * as _ from 'lodash'
 import path from 'path'
+
 
 const base = 'https://api.weixin.qq.com/cgi-bin/'
 const api = {
@@ -19,8 +21,26 @@ const api = {
         update: base+'material/update_news?', //更新(系应该)永久素材
         update: base+'material/get_materialcount?', //获取素材总数
         batch: base+'material/batch_material?' //获取素材列表
-        
-    }
+    },
+    tag: {
+        create: base + 'tags/create?',
+        fetch: base + 'tags/get?',
+        update: base + 'tags/update?',
+        del: base + 'tags/delete?',
+        fetchUsers: base + 'user/tag/get?',
+        batchTag: base + 'tags/members/batchtagging?',
+        batchUnTag: base + 'tags/members/batchuntagging?',
+        getTagList: base + 'tags/getidlist?'
+      },
+      user: {
+        remark: base + 'user/info/updateremark?',  //设置用户名字
+        info: base + 'user/info?',  //获取用户基本信息  ----用得最多的
+        batchInfo: base + 'user/info/batchget?', //批量获取用户基本信息
+        fetchUserList: base + 'user/get?', //获取用户关注着列表
+        getBlackList: base + 'tags/members/getblacklist?', //获取黑名单列表
+        batchBlackUsers: base + 'tags/members/batchblacklist?', //批量获取黑名单列表
+        batchUnblackUsers: base + 'tags/members/batchunblacklist?'  //拉黑用户
+      }
 }
 //将他作为微信整个异步场景的入口文件
 
@@ -60,14 +80,17 @@ export default class Wechat {
         }
     }
 
-    //获取
+    //获取AccessToke
     async fetchAccessToken () { 
         console.log("运行获取--->fetchAccessToken")
         //首先拿到当前的token
         let data = await this.getAccessToken()
+        console.log("首先拿到当前的token",data)
         if (!this.isValidAccessToken(data)) { //如果不合法
+            console.log("当前的token不合法")
             data =  await this.updateAccessToken()
         }
+        console.log("当前的token合法保存然后返回",data)
         await this.saveAccessToken(data)
         
         return data
@@ -75,7 +98,7 @@ export default class Wechat {
 
     //更新access_token 
     async updateAccessToken () {
-        console.log("运行更新--->fetchAccessToken")
+        console.log("运行更新--->updateAccessToken")
         
         const url = api.accessToken+'&appid='+this.appID+'&secret='+this.appSecret
         //console.log("url--->url=",url)
@@ -110,8 +133,12 @@ export default class Wechat {
 
     //上传的操作
     async handle (operation, ...args) { 
+        //console.log("周达理",operation)
         const tokenData = await this.fetchAccessToken()
-        const options = await this[operation](tokenData.accecc_token,...args)
+        const options = await this[operation](tokenData.access_token,...args) //传入的是uploadMaterial ,则表示运行下面的上传diamante
+
+        console.log("周达理 这是请求之前的options",options)
+        
         const data =  await this.request(options)
         return data
     }
@@ -121,31 +148,34 @@ export default class Wechat {
     async uploadMaterial(token, type, material, permanent){  //配置上传的options
         let form ={}
         let url = api.temporary.upload
-
+        console.log("token, type, material, permanent",token, type, material, permanent)
         if(permanent){ //判断素材的类型(永久或者非永久)
             url = api.permanent.upload
 
-            _.extend(from,permanent)
+            _.extend(form,permanent)
         }
         if(type === 'pic'){
             url = api.permanent.uploadNewsPic
         }
         if(type === 'news'){
             url = api.permanent.uploadNews
-            from = meterial
+            form = material
         }else{
-            form = formstream()
-            const stat = await statFile(material)  //拿到stat
-            form.file('media',material,path.basename(material),stat.size)
+            //form = formstream()
+            form.media = fs.createReadStream(material)
+            // const stat = await statFile(material)  //拿到stat
+            // form.file('media',material,path.basename(material),stat.size)
         }
         //拼接上传的url
-        let uploadUrl = url + 'accecc_token='+token
+        let uploadUrl = url + 'access_token='+token
 
-        //追加类型
+        //追加类型是否永久
         if(!permanent){ //如果不是永久类型
             uploadUrl+= '&type=' +type
         }else{
-            form.filed('accecc_token',accecc_token)
+            if(type!=='news'){
+                form.access_token = token                
+            }
         }
         //上传配置项
         const options = {
@@ -156,8 +186,175 @@ export default class Wechat {
         if(type === 'new'){
             options.body = form
         }else{
-            options.formData  = form            
+            options.formData  = JSON.stringify(form)            
         }
         return options
     }
+
+
+    //获取素材
+    fetchMaterial (token, mediaId, type, permanent) {
+        let form = {}
+        let fetchUrl = api.temporary.fetch
+
+        if (permanent) {
+            fetchUrl = api.permanent.fetch
+        }
+
+        let url = fetchUrl + 'access_token=' + token
+        let options = {method: 'POST', url: url}
+
+        if (permanent) {
+            form.media_id = mediaId
+            form.access_token = token
+            options.body = form
+        } else {
+            if (type === 'video') {
+            url = url.replace('https://', 'http://')
+            }
+
+            url += '&media_id=' + mediaId
+        }
+
+        return options
+    }
+    //删除永久素材
+    deleteMaterial (token, mediaId) {
+        const form = {
+          media_id: mediaId
+        }
+        const url = api.permanent.del + 'access_token=' + token + '&media_id' + mediaId
+    
+        return {method: 'POST', url: url, body: form}
+    }
+    //更新素材
+    updateMaterial (token, mediaId, news) {
+        const form = {
+          media_id: mediaId
+        }
+    
+        _.extend(form, news)
+        const url = api.permanent.update + 'access_token=' + token + '&media_id=' + mediaId
+    
+        return {method: 'POST', url: url, body: form}
+    }
+    //素材树木
+    countMaterial (token) {
+        const url = api.permanent.count + 'access_token=' + token
+    
+        return {method: 'POST', url: url}
+    }
+    //素材分组
+    batchMaterial (token, options) {
+        options.type = options.type || 'image'
+        options.offset = options.offset || 0
+        options.count = options.count || 10
+    
+        const url = api.permanent.batch + 'access_token=' + token
+    
+        return {method: 'POST', url: url, body: options}
+    }
+
+    //用户标签管理---------------------------------
+
+    //创建标签
+    createTag (token, name) {
+        const form = {
+          tag: {
+            name: name
+          }
+        }
+        const url = api.tag.create + 'access_token=' + token
+    
+        return {method: 'POST', url: url, body: form}
+    }
+    //获取标签
+    fetchTags (token) {
+        const url = api.tag.fetch + 'access_token=' + token
+    
+        return {url: url}
+    }
+    //更新标签
+    updateTag (token, tagId, name) {
+        const form = {
+          tag: {
+            id: tagId,
+            name: name
+          }
+        }
+    
+        const url = api.tag.update + 'access_token=' + token
+    
+        return {method: 'POST', url: url, body: form}
+    }
+    //删除标签
+    delTag (token, tagId) {
+        const form = {
+          tag: {
+            id: tagId
+          }
+        }
+    
+        const url = api.tag.del + 'access_token=' + token
+    
+        return {method: 'POST', url: url, body: form}
+    }
+    
+    fetchTagUsers (token, tagId, openId) {
+        const form = {
+          tagid: tagId,
+          next_openid: openId || ''
+        }
+        const url = api.tag.fetchUsers + 'access_token=' + token
+    
+        return {method: 'POST', url: url, body: form}
+    }
+    // unTag true|false
+    batchTag (token, openIdList, tagId, unTag) {
+        const form = {
+        openid_list: openIdList,
+        tagid: tagId
+        }
+        let url = api.tag.batchTag
+
+        if (unTag) {
+        url = api.tag.batchUnTag
+        }
+
+        url += 'access_token=' + token
+
+        return {method: 'POST', url: url, body: form}
+    }
+
+    getTagList (token, openId) {
+        const form = {
+        openid: openId
+        }
+        const url = api.tag.getTagList + 'access_token=' + token
+
+        return {method: 'POST', url: url, body: form}
+    }
+
+    //用户--------------------------------
+    //获取用户基本信息
+    getUserInfo (token, openId, lang) {
+        const url = `${api.user.info}access_token=${token}&openid=${openId}&lang=${lang || 'zh_CN'}`
+    
+        return {url: url}
+    }  
+    //批量用户基本信息
+    batchUserInfo (token, userList) {
+        const url = api.user.batchInfo + 'access_token=' + token
+        const form = {
+          user_list: userList
+        }
+    
+        return {method: 'POST', url: url, body: form}
+    }
+    //获取用户列表
+    fetchUserList (token, openId) {
+        const url = `${api.user.fetchUserList}access_token=${token}&next_openid=${openId || ''}`
+    
+        return {url: url}
+    }  
 }

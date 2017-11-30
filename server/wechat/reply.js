@@ -7,6 +7,12 @@ export default async (ctx, next)=>{
     // console.log("这里是reply拿到的微信",message)
     // ctx.body = tip
     console.log("这里是回复的策略-->message=:",message)
+    let mp = require('../wechat')
+    let client = mp.getWechat()  //拿到配置项
+
+
+
+
     if(message.MsgType === 'event'){ 
         if(message.Event === 'subscribe'){ //subscribe(订阅)
             ctx.body = tip
@@ -16,6 +22,10 @@ export default async (ctx, next)=>{
             ctx.body = message.Latitude+":"+message.Longitude
         }
     }else if(message.MsgType === 'text'){  //测试  文本类型
+        if(message.Content === '1'){
+            const data = await client.handle('getUserInfo','o6CCOv07vBrYB5v1MvtlROyAXWAc')
+            console.log("这是用户的方法",data)
+        }
         ctx.body = message.Content
     }else if(message.MsgType === 'image'){ //测试  图片类型
         ctx.body = {

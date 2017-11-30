@@ -19,6 +19,7 @@
     "formstream": "^1.1.0",
     "koa": "^2.4.1",
     "koa-router": "^7.3.0",
+    "lodash": "^4.17.4",
     "mongoose": "^4.13.5",
     "nuxt": "^1.0.0-rc11",
     "raw-body": "^2.3.2",
