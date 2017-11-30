@@ -27,4 +27,4 @@ export const getWechat =()=>{
     return wechatClient
 }
 
-getWechat()
+//getWechat()
