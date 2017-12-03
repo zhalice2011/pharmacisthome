@@ -3,6 +3,7 @@ import formstream from 'formstream'
 import fs from 'fs'
 import * as _ from 'lodash'
 import path from 'path'
+import {sign} from './util'
 
 
 const base = 'https://api.weixin.qq.com/cgi-bin/'
@@ -40,6 +41,17 @@ const api = {
         getBlackList: base + 'tags/members/getblacklist?', //获取黑名单列表
         batchBlackUsers: base + 'tags/members/batchblacklist?', //批量获取黑名单列表
         batchUnblackUsers: base + 'tags/members/batchunblacklist?'  //拉黑用户
+      },
+      menu: {
+        create: base + 'menu/create?',  //创建菜单
+        get: base + 'menu/get?',
+        del: base + 'menu/delete?',
+        addCondition: base + 'menu/addconditional?',  //创建个性化菜单
+        delCondition: base + 'menu/delconditional?',  //删除个性化菜单
+        getInfo: base + 'get_current_selfmenu_info?'  //获取个性化菜单
+      },
+      ticket: {
+        get: base + 'ticket/getticket?'
       }
 }
 //将他作为微信整个异步场景的入口文件
@@ -63,7 +75,8 @@ export default class Wechat {
         this.appSecret = opts.appSecret
         this.getAccessToken = opts.getAccessToken
         this.saveAccessToken = opts.saveAccessToken
-        
+        this.getTicket = opts.getTicket
+        this.saveTicket = opts.saveTicket
         this.fetchAccessToken()
     }
 
@@ -86,12 +99,25 @@ export default class Wechat {
         //首先拿到当前的token
         let data = await this.getAccessToken()
         console.log("首先拿到当前的token",data)
-        if (!this.isValidAccessToken(data)) { //如果不合法
+        if (!this.isValidToken(data,"access_token")) { //如果不合法
             console.log("当前的token不合法")
             data =  await this.updateAccessToken()
         }
         console.log("当前的token合法保存然后返回",data)
         await this.saveAccessToken(data)
+        
+        return data
+    }
+    //获取Ticket
+    async fetchTicket () { 
+        //首先拿到当前的token
+        let data = await this.getTicket()
+        if (!this.isValidToken(data,'ticket')) { //如果不合法
+            console.log("当前的token不合法")
+            data =  await this.updateTicket()
+        }
+        console.log("当前的token合法保存然后返回",data)
+        await this.saveTicket(data)
         
         return data
     }
@@ -112,12 +138,24 @@ export default class Wechat {
 
         return data
     }
+    //更新Ticket
+    async updateTicket (token) {
+        const url = api.ticket.get + '&access_token=' + token + '&type=jsapi'
+    
+        let data = await this.request({url: url})
+        const now = (new Date().getTime())
+        const expiresIn = now + (data.expires_in - 20) * 1000
+    
+        data.expires_in = expiresIn
+    
+        return data
+    }
 
     //判断是否合法的方法
-    isValidAccessToken (data) {
-        console.log("运行判断--->isValidAccessToken")
+    isValidToken (data,name) {
+        console.log("判断是否合法--->isValidToken")
         
-        if(!data ||!data.access_token ||!data.expires_in){
+        if(!data || !data[name] ||!data.expires_in){
             return false
         }
         const expires_in = data.expires_in
@@ -137,7 +175,7 @@ export default class Wechat {
         const tokenData = await this.fetchAccessToken()
         const options = await this[operation](tokenData.access_token,...args) //传入的是uploadMaterial ,则表示运行下面的上传diamante
 
-        console.log("周达理 这是请求之前的options",options)
+        console.log("周达理 这是请求之前的options",JSON.stringify(options))
         
         const data =  await this.request(options)
         return data
@@ -357,4 +395,53 @@ export default class Wechat {
     
         return {url: url}
     }  
+
+    //菜单 ---------------------------------------------
+    //创建菜单
+    createMenu (token, menu) {
+        const url = api.menu.create + 'access_token=' + token
+        
+        return {method: 'POST', url: url, body: menu}
+    }
+    
+    getMenu (token) {
+        const url = api.menu.get + 'access_token=' + token
+    
+        return {url: url}
+    }
+    
+    delMenu (token) {
+        const url = api.menu.del + 'access_token=' + token
+    
+        return {url: url}
+    }
+    //穿件个性化菜单
+    addConditionMenu (token, menu, rule) {
+        const url = api.menu.addCondition + 'access_token=' + token
+        const form = {
+          button: menu,
+          matchrule: rule
+        }
+    
+        return {method: 'POST', url: url, body: form}
+    }
+    
+    delConditionMenu (token, menuId) {
+        const url = api.menu.delCondition + 'access_token=' + token
+        const form = {
+          menuid: menuId
+        }
+    
+        return {method: 'POST', url: url, body: form}
+    }
+
+    getCurrentMenuInfo (token) {
+        const url = api.menu.getInfo + 'access_token=' + token
+
+        return {url: url}
+    }
+
+    sign (ticket, url) {
+        return sign(ticket, url)
+    }
 }

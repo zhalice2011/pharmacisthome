@@ -4,8 +4,6 @@ const tip = '周达理\n' + '<a href="http://baidu.com">我真的是智障</a>'
 //暴露出去一个异步的函数
 export default async (ctx, next)=>{
     const message = ctx.weixin 
-    // console.log("这里是reply拿到的微信",message)
-    // ctx.body = tip
     console.log("这里是回复的策略-->message=:",message)
     let mp = require('../wechat')
     let client = mp.getWechat()  //拿到配置项
@@ -20,11 +18,23 @@ export default async (ctx, next)=>{
             console.log("取消关注")
         }else if(message.Event === 'LOCATION'){ //允许获取位置信息地理位置
             ctx.body = message.Latitude+":"+message.Longitude
+        }else if(message.Event === 'view'){ //跳转到一个新的url地址了
+            ctx.body = message.EventKey+":"+message.MenuId
+        }else if(message.Event === 'pic_sysphoto'){ //系统拍照发图的事件推送
+            ctx.body = message.Count+"照片上传"
+
         }
-    }else if(message.MsgType === 'text'){  //测试  文本类型
+    }else if(message.MsgType === 'text'){  //测试  文本类型(用户输入什么我们就ctx.body也回复什么)
         if(message.Content === '1'){
             const data = await client.handle('getUserInfo','o6CCOv07vBrYB5v1MvtlROyAXWAc')
             console.log("这是用户的方法",data)
+        }else if(message.Content === '2'){ //测试  创建菜单
+            //引入menu配置项
+            const menu = require('./menu').default
+            
+            await client.handle('delMenu')
+            const data = await client.handle('createMenu',menu)
+            console.log("这是用户的菜单",JSON.stringify(data))
         }
         ctx.body = message.Content
     }else if(message.MsgType === 'image'){ //测试  图片类型

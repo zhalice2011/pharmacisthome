@@ -51,17 +51,17 @@ function formatMessage (result) {
 }
 
 function tpl (content, message) { //content是回复的内容  message是解析后的微信消息
-    console.log("传入的数据是content:",content)
-    console.log("传入的数据是message:",message)
-//     传入的数据是content: { type: 'image',
-//     mediaId: '8kFfktPg6UiuJ42BKKjihm2ZkaKW5_CKsLVak_oPAoLSBvKEJaKSt17quZCP8LCC' }
-//     传入的数据是message: { ToUserName: 'gh_a4518b6b1d4a',
-//     FromUserName: 'o6CCOv07vBrYB5v1MvtlROyAXWAc',
-//     CreateTime: '1511972973',
-//     MsgType: 'image',
-//     PicUrl: 'http://mmbiz.qpic.cn/mmbiz_jpg/evSnewkSotOEKTR0uwvXhZGhEgkjW4hPnLZWoeoqRa40GKF2dEc9r33q0IcAdot4FZLtOWj4YlZrSr57DYMLuw/0',
-//     MsgId: '6493874471924158573',
-//     MediaId: '8kFfktPg6UiuJ42BKKjihm2ZkaKW5_CKsLVak_oPAoLSBvKEJaKSt17quZCP8LCC' }
+    // console.log("传入的数据是content:",content)
+    // console.log("传入的数据是message:",message)
+    //     传入的数据是content: { type: 'image',
+    //     mediaId: '8kFfktPg6UiuJ42BKKjihm2ZkaKW5_CKsLVak_oPAoLSBvKEJaKSt17quZCP8LCC' }
+    //     传入的数据是message: { ToUserName: 'gh_a4518b6b1d4a',
+    //     FromUserName: 'o6CCOv07vBrYB5v1MvtlROyAXWAc',
+    //     CreateTime: '1511972973',
+    //     MsgType: 'image',
+    //     PicUrl: 'http://mmbiz.qpic.cn/mmbiz_jpg/evSnewkSotOEKTR0uwvXhZGhEgkjW4hPnLZWoeoqRa40GKF2dEc9r33q0IcAdot4FZLtOWj4YlZrSr57DYMLuw/0',
+    //     MsgId: '6493874471924158573',
+    //     MediaId: '8kFfktPg6UiuJ42BKKjihm2ZkaKW5_CKsLVak_oPAoLSBvKEJaKSt17quZCP8LCC' }
     let type = 'text'
     if (Array.isArray(content)){ //如果content是一个数组的话
         type = 'news'
@@ -86,11 +86,61 @@ function tpl (content, message) { //content是回复的内容  message是解析�
     return template(info)
 }
 
+function createNonce () {  //生成随机字符串
+    return Math.random().toString(36).substr(2, 15)
+}
+  
+function createTimestamp () {  //生成时间戳
+    return parseInt(new Date().getTime() / 1000, 0) + ''
+}
+function raw (args) { //排序的方法
+    let keys = Object.keys(args) //拿到所有的key
+    let newArgs = {}
+    let str = ''
+  
+    keys = keys.sort()  //排序
+    keys.forEach((key) => {  //对keys数组进行遍历
+      newArgs[key.toLowerCase()] = args[key]  //toLowerCase变成小写  生成一个新的对象
+    })
+  
+    for (let k in newArgs) {
+      str += '&' + k + '=' + newArgs[k]
+    }
+  
+    return str.substr(1)
+}
+function signIt (nonce,ticket,timestamp,url) {
+    //首先进行字典排序
+    const ret = {
+        jsapi_ticket: ticket,
+        nonceStr: nonce,
+        timestamp: timestamp,
+        url: url
+    }
+    
+    const string = raw(ret)
+    const sha = sha1(string)
+    
+    return sha
+}
+
+function sign (ticket,url) { //签名算法
+    const nonce = createNonce()
+    const timestamp = createTimestamp()
+    const signature = signIt(nonce,ticket,timestamp,url)
+    return {
+        noncestr:nonce,
+        timestamp:timestamp,
+        signature:signature
+    }
+}
+
 
 //通过export暴露出去这个message
 
 export {
     formatMessage,
     parseXML,
-    tpl
+    tpl,
+    sign
 }

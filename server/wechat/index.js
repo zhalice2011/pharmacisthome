@@ -8,6 +8,7 @@ import config from '../config'
 import Wechat from '../wechat-lib/'
 
 const Token = mongoose.model('Token')
+const Ticket = mongoose.model('Ticket')
 console.log("我是wechat 我被引入了")
 
 const wechatConfig = {
@@ -16,7 +17,9 @@ const wechatConfig = {
             appSecret:config.wechat.appSecret,
             token:config.wechat.token,
             getAccessToken:async()=> await Token.getAccessToken(),
-            saveAccessToken:async(data)=> await Token.saveAccessToken(data)
+            saveAccessToken:async(data)=> await Token.saveAccessToken(data),
+            getTicket: async () => await Ticket.getTicket(),
+            saveTicket: async (data) => await Ticket.saveTicket(data)
         }
 }
 
