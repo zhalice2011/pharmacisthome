@@ -11,6 +11,11 @@ module.exports = {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ],
+    script: [ //这里面的脚本都会被加载到我们页面中的head中去
+      {
+        src:'http://res.wx.qq.com/open/js/jweixin-1.2.0.js'
+      }
     ]
   },
   /*

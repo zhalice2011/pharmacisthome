@@ -3,6 +3,7 @@
 
 import xml2js from 'xml2js'
 import template from './tpl'
+import sha1 from 'sha1'
 //暴露出去一个解析xml的函数
 function parseXML (xml){
     console.log("我是parseXML函数")

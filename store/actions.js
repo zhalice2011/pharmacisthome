@@ -1,0 +1,7 @@
+import Services from './services'
+export default {
+    getWechatSignture({commit},url){  //通过他来进行请求签名值的操作
+        return Services.getWechatSignture(url)
+    }
+
+}

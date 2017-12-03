@@ -1,18 +1,12 @@
 <template>
   <section class="container">
     <img src="../static/img/logo.png" alt="Nuxt.js Logo" class="logo" />
-    <h1 class="title">
-      This page is loaded from the {{ name }}
-    </h1>
-    <h2 class="info" v-if="name === 'client'">
-      Please refresh the page
-    </h2>
-    <nuxt-link class="button" to="/">
-      Home page
+
     </nuxt-link>
   </section>
 </template>
 <script>
+import { mapState } from 'vuex'
 export default {
   asyncData ({ req }) {
     return {
@@ -23,6 +17,41 @@ export default {
     return {
       title: `About Page (${this.name}-side)`
     }
+  },
+  beforeMount(){  //在组件安装之前我们需要做的  先拿到全局对象
+    const  wx = window.wx
+    const  url = window.location.href
+    //触发store里面的状态变更 
+    this.$store.dispatch('getWechatSignture',url)
+      .then(res => {
+        console.log("res:",res)
+        if(res.data.success){
+          const params = res.data.params
+          console.log("parmas",params)
+          //进行配置权限的验证接入
+          wx.config({
+            debug: true,
+            appId: params.appId,
+            timestamp: params.timestamp,
+            nonceStr: params.nonceStr,
+            signature: params.signature,
+            jsApiList:[ //需要的权限列表
+              'previewImage',
+              'uploadImage',
+              'downloadImage',
+              'onMenuShareTimeline',
+              'hideAllNonBaseMenuItem',
+              'showMenuItems'
+            ]
+          })
+
+          wx.ready(()=>{
+            //隐藏非基础按钮
+            wx.hideAllNonBaseMenuItem()
+            console.log("周达理")
+          })
+        }
+      })
   }
 }
 </script>

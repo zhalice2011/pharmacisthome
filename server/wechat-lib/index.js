@@ -109,12 +109,13 @@ export default class Wechat {
         return data
     }
     //获取Ticket
-    async fetchTicket () { 
+    async fetchTicket (token) { 
         //首先拿到当前的token
         let data = await this.getTicket()
+        console.log("fetchTicket---拿到data",data)
         if (!this.isValidToken(data,'ticket')) { //如果不合法
             console.log("当前的token不合法")
-            data =  await this.updateTicket()
+            data =  await this.updateTicket(token)
         }
         console.log("当前的token合法保存然后返回",data)
         await this.saveTicket(data)

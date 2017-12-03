@@ -59,22 +59,26 @@ TicketSchema.statics = {
             ticket.ticket = data.ticket
             ticket.expires_in = data.expires_in
         } else {
-            ticket = new ticket({
+            ticket = new Ticket({
                 name : 'ticket',
                 ticket : data.ticket,
                 expires_in : data.expires_in
             })
         }
-
-        await ticket.save()
-        //console.log("accessticket存储完毕")
-        return data
+        try {
+            await ticket.save()
+            console.log("ticket存储完毕")
+        
+        } catch (e) {
+            console.log('存储失败')
+            console.log(e)
+        }
+        return data 
     }
 }
 
 //拿到这个数据模型 然后new方法生成一个数据的实例
 const Ticket = mongoose.model('Ticket',TicketSchema)
-
 
 // const mongoose = require('mongoose')
 // const Schema = mongoose.Schema
