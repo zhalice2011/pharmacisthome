@@ -1,10 +1,14 @@
 //通过这个来收集 我们所有需要暴露出去的api
 
 import {
-    getSignatureAsync
+    getSignatureAsync,
+    getAuthorizeURL,
+    getUserByCode
 } from './wechat'
 
 
 export {
-    getSignatureAsync
+    getSignatureAsync,
+    getAuthorizeURL,
+    getUserByCode
 }

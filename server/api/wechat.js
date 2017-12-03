@@ -1,6 +1,6 @@
 //进行微信相关的api的调用
 
-import {getWechat} from '../wechat' 
+import {getWechat,getOAuth} from '../wechat' 
 
 const client = getWechat() //调用这个方法  生成一个实例
 
@@ -22,3 +22,20 @@ export async function getSignatureAsync (url){
 }
 
 
+
+export function getAuthorizeURL (...args) {
+    console.log(...args)
+    const oauth = getOAuth() //拿到实例
+    
+    return oauth.getAuthorizeURL(...args)
+}
+  
+export async function getUserByCode (code) {
+    const oauth = getOAuth() //拿到实例
+  
+    const data = await oauth.fetchAccessToken(code)
+    const openid = data.openid
+    const user = await oauth.getUserInfo(data.access_token, openid)
+  
+    return user
+}

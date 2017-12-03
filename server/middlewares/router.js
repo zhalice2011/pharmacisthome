@@ -5,7 +5,7 @@ import wechatMiddle from '../wechat-lib/middleware'
 import {resolve} from 'path'
 
 
-import { signature } from '../controllers/wechat'
+import { signature,redirect,oauth} from '../controllers/wechat'
 
 //  import '../wechat'   //引入这个文件夹 就会去执行wechat/index.js里面的代码
 
@@ -16,6 +16,8 @@ export const router = app =>{
     router.all('/wechat-hear',wechatMiddle(config.wechat,reply))
 
     router.get('/wechat-signature',signature)  //截获
+    router.get('/wechat-redirect',redirect)  //跳转
+    router.get('/wechat-oauth',oauth)  //跳转
     
     
     

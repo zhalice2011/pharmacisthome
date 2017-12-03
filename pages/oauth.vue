@@ -10,7 +10,7 @@ import { mapState } from 'vuex'
 export default {
   asyncData ({ req }) {
     return {
-      name: req ? 'server' : 'client'
+      tittle:`测试页面`
     }
   },
   head () {
@@ -22,34 +22,12 @@ export default {
     const  wx = window.wx
     const  url = window.location.href
     //触发store里面的状态变更 
-    this.$store.dispatch('getWechatSignture',encodeURIComponent(url))
+    this.$store.dispatch('getUserByOAuth',encodeURIComponent(url))
       .then(res => {
         console.log("res:",res)
         if(res.data.success){
-          const params = res.data.params
-          console.log("parmas",params)
+          console.log("parmas",res.data)
           //进行配置权限的验证接入
-          wx.config({
-            debug: true,
-            appId: params.appId,
-            timestamp: params.timestamp,
-            nonceStr: params.nonceStr,
-            signature: params.signature,
-            jsApiList:[ //需要的权限列表
-              'previewImage',
-              'uploadImage',
-              'downloadImage',
-              'onMenuShareTimeline',
-              'hideAllNonBaseMenuItem',
-              'showMenuItems'
-            ]
-          })
-
-          wx.ready(()=>{
-            //隐藏非基础按钮
-            wx.hideAllNonBaseMenuItem()
-            console.log("周达理")
-          })
         }
       })
   }

@@ -1,5 +1,6 @@
 export default{
     db: 'mongodb://localhost/pharmacisthome',
+    SITE_ROOT_URL:'http://4235a702.ngrok.io',
     wechat:{
         token:'mtmweixin',
         appID:'wxe29ba3019a16614a',
