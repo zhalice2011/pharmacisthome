@@ -24,6 +24,16 @@ export default {
         const res = await Services.fetchCities()
         state.houses = res.data.data
         return res
+    },
+
+    //请求家族数据
+    async currentHouse ({state},_id) {
+        //先拿到这个id  进行判断 如果说
+        if(_id === state.currentHouse._id) return //如果id相同就返回
+        
+        const res = await Services.fetchHouse(_id)
+        state.currentHouse = res.data.data
+        return res
     }
 
 }

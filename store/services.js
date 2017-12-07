@@ -23,6 +23,10 @@ class Services {
     fetchCharacters (){
         return axios.get(`${apiUrl}/wiki/characters`)
     }
+    fetchHouse (id){  //请求人物数据
+        console.log("id是")
+        return axios.get(`${apiUrl}/wiki/houses/${id}`)
+    }
 }
 
 export default new Services()
