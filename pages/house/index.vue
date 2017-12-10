@@ -44,7 +44,8 @@ export default {
   },
   beforeCreate () {
     let id = this.$route.query.id
-    this.$store.dispatch('showHouse', id)  
+    console.log("这是我们的id",id)
+    this.$store.dispatch('currentHouse', id)  
   }
 }
 </script>

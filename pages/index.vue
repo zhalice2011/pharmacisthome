@@ -82,12 +82,11 @@
       ...mapState([
         'houses',
         'characters',
-        'cities'
+        //'cities'
       ])
     },
     methods:{
       showHouse (item) {
-        console.log("有人吗")
         this.$router.push({
           path:'/house',
           query:{

@@ -53,6 +53,7 @@
     "source-map-support": "^0.4.15",
     "speakeasy": "^2.0.0",
     "vue-awesome-swiper": "^2.5.0",
+    "vue-style-loader": "^3.0.3",
     "wechat-pay": "^0.2.5",
     "xml2js": "^0.4.17",
     "xss": "^0.3.3"

@@ -10,7 +10,9 @@ export default {
 
     async fetchHouses ({state}) {
         const res = await Services.fetchHouses()
-        state.houses = res.data.data
+        //console.log("fetchHouses",JSON.stringify(res.data[0].data))
+        
+        state.houses = res.data[0].data
         return res
     },
 
@@ -23,6 +25,15 @@ export default {
     async fetchCities ({state}) {
         const res = await Services.fetchCities()
         state.houses = res.data.data
+
+        return res
+    },
+    async focusCharacter ({ state }, _id) {
+        //console.log("focusCharacter 后台接受的id",_id)
+        if (_id === state.focusCharacter._id) return
+        const res = await Services.focusCharacter(_id)
+        //console.log("focusCharacter",JSON.stringify(res.data))
+        state.focusCharacter = res.data.data
         return res
     },
 
@@ -30,10 +41,28 @@ export default {
     async currentHouse ({state},_id) {
         //先拿到这个id  进行判断 如果说
         if(_id === state.currentHouse._id) return //如果id相同就返回
+        console.log("_id",_id)
+        //console.log("state.currentHouse._id",state.currentHouse._id)
         
         const res = await Services.fetchHouse(_id)
-        state.currentHouse = res.data.data
+        //console.log("currentHouse.res._id",JSON.stringify(res.data[0].data))
+        
+        state.currentHouse = res.data[0].data
+        return res
+    },
+    async fetchProducts ({ state }) {
+        const res = await Services.allProducts()
+    
+        console.log(res.data)
+        state.products = res.data
+        return res
+    },
+    
+    async focusProduct ({ state }, _id) {
+        if (_id === state.focusProduct._id) return
+        const res = await Services.focusProduct(_id)
+        state.focusProduct = res.data
         return res
     }
 
-}
+} 

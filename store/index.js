@@ -7,8 +7,11 @@ const createStore = () =>{
     return new Vuex.Store({
         state:{
             currentHouse:{},
+            focusCharacter:{},
             houses:[],
             cities:[],
+            products:[],
+
             characters:[]
         },
         getters,
